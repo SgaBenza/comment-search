@@ -2,30 +2,19 @@
 
 // https://github.com/typicode/json-server/issues/1112
 
-import { useState } from 'react'
-import { getData } from '../lib/fetch'
+interface SearchBoxProps {
+  searchText: string
+  onSubmit: (e: React.FormEvent) => void
+  onSearchTextChange: (searchText: string) => void
+}
 
-export const SearchBox = () => {
-  const [searchText, setSearchText] = useState('')
-  const [data, setData] = useState([])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchText.length > 3) {
-      getData('body', 'contains', searchText).then((response) => {
-        setData(response)
-      })
-    } else {
-      alert('Search text must be longer than 3 characters.')
-    }
-  }
-
+export const SearchBox = ({ searchText, onSubmit, onSearchTextChange }: SearchBoxProps) => {
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <input
         type="text"
         value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
+        onChange={(e) => onSearchTextChange(e.target.value)}
         placeholder="Search..."
         className="border border-gray-300 rounded px-4 py-2"
         minLength={3}
