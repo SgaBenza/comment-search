@@ -1,5 +1,7 @@
+import { API_URL } from './constants'
+
 export async function getData(field: string, param: string, value: string) {
-  const url = `https://mockend.com/api/mockend/demo/comments?${field}_${param}=${value}`
+  const url = API_URL + `/comments?${field}_${param}=${value}`
   const response = await fetch(url)
     .then((res) => {
       if (!res.ok) {
