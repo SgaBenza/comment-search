@@ -3,6 +3,7 @@ import { getData } from '../lib/fetch'
 import { Comment } from '../lib/types'
 
 export const useHandleSubmit = (searchText: string, setData: (data: Comment[]) => void) => {
+  // The useCallback hook is used to memoize the function so that it is not recreated on every render.
   return useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
