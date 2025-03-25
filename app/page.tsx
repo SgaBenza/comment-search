@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import { SearchBox } from './components/SearchBox'
 import { useHandleSubmit } from './hooks/search'
-import { Comment } from './lib/types'
+import { GetDataResponse, Comment } from './lib/types'
 import { Comments } from './components/Comments'
+import { Pagination } from './components/Pagination'
 
 export default function Home() {
-  const [data, setData] = useState<Comment[]>([])
+  const [data, setData] = useState<GetDataResponse<Comment>>()
   const [searchText, setSearchText] = useState('')
 
   return (
@@ -19,7 +20,12 @@ export default function Home() {
           onSearchTextChange={setSearchText}
         />
 
-        <Comments data={data} />
+        {data?.data && (
+          <div>
+            <Pagination links={data?.pagination.links} />
+            <Comments data={data?.data} />
+          </div>
+        )}
       </main>
     </div>
   )
