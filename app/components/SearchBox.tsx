@@ -1,6 +1,5 @@
 'use client'
 
-// https://github.com/typicode/json-server/issues/1112
 
 interface SearchBoxProps {
   searchText: string

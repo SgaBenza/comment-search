@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { SearchBox } from './components/SearchBox'
-import { useHandleSubmit } from './hooks/search'
+import { handlePagination, useHandleSubmit } from './hooks/search'
 import { GetDataResponse, Comment } from './lib/types'
 import { Comments } from './components/Comments'
 import { Pagination } from './components/Pagination'
@@ -22,7 +22,7 @@ export default function Home() {
 
         {data?.data && (
           <div>
-            <Pagination links={data?.pagination.links} />
+            <Pagination links={data?.pagination.links} callback={(url) =>  handlePagination(url, setData) } />
             <Comments data={data?.data} />
           </div>
         )}

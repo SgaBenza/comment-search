@@ -1,12 +1,18 @@
 import { PaginationLinks } from '../lib/types'
 
-export const Pagination = ({ links }: { links: PaginationLinks }) => {
+export const Pagination = ({
+  links,
+  callback = () => {},
+}: {
+  links: PaginationLinks
+  callback: (url: string) => void
+}) => {
   return (
     <div className="flex justify-center gap-4">
       {Object.entries(links).map(([rel, url], index) => (
-        <a key={index} href={url} className="text-blue-600" target="_blank" rel="noreferrer">
+        <div key={index} className="text-blue-600 cursor-pointer" onClick={() => callback(url)}>
           {rel}
-        </a>
+        </div>
       ))}
     </div>
   )

@@ -7,7 +7,6 @@ export type Comment = {
 }
 export type CommentResponse = Comment[]
 
-// Types for the response
 export interface PaginationLinks {
   first?: string
   prev?: string
