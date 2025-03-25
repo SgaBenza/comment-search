@@ -1,63 +1,126 @@
-import { getData } from '../fetch';
-import { API_URL } from '../constants';
+import { getData } from '../fetch'
 
-// Mock the global fetch function
-global.fetch = jest.fn();
+// Mock fetch globally
+global.fetch = jest.fn()
 
 describe('getData', () => {
-  beforeEach(() => {
-    // Clear all mocks before each test
-    jest.clearAllMocks();
-  });
+    beforeEach(() => {
+        jest.clearAllMocks()
+    })
 
-  it('should successfully fetch data', async () => {
-    const mockResponse = { data: 'test pippo' };
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve(mockResponse),
-    });
+    it('should fetch data successfully with pagination', async () => {
+        const mockData = {
+            id: 1,
+            title: 'Test Comment'
+        }
 
-    const result = await getData('data', 'contains', 'value');
-    expect(global.fetch).toHaveBeenCalledWith(
-      `${API_URL}/comments?data_contains=value`
-    );
-    expect(result).toEqual(mockResponse);
-  });
+        const mockLinkHeader = '<http://api/comments?page=2>; rel="next", <http://api/comments?page=1>; rel="first"'
 
-  it('should handle non-OK response', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      status: 404,
-    });
+            ; (global.fetch as jest.Mock).mockResolvedValueOnce({
+                ok: true,
+                json: async () => mockData,
+                headers: new Headers({
+                    'link': mockLinkHeader,
+                    'x-total-count': '10'
+                })
+            })
 
-    const result = await getData('test', 'eq', 'value');
+        const url = 'http://api/comments'
+        const result = await getData(url)
 
-    expect(consoleSpy).toHaveBeenCalledWith('Response status: 404');
-    expect(result).toBeUndefined();
-    consoleSpy.mockRestore();
-  });
+        expect(global.fetch).toHaveBeenCalledWith(url)
+        expect(result).toEqual({
+            data: mockData,
+            pagination: {
+                links: {
+                    next: 'http://api/comments?page=2',
+                    first: 'http://api/comments?page=1'
+                },
+                totalCount: 10
+            }
+        })
+    })
 
-  it('should handle fetch error', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    const error = new Error('Network error');
-    (global.fetch as jest.Mock).mockRejectedValueOnce(error);
+    it('should handle missing pagination headers', async () => {
+        const mockData = {
+            id: 1,
+            title: 'Test Comment'
+        }
 
-    const result = await getData('test', 'eq', 'value');
+            ; (global.fetch as jest.Mock).mockResolvedValueOnce({
+                ok: true,
+                json: async () => mockData,
+                headers: new Headers({})
+            })
 
-    expect(consoleSpy).toHaveBeenCalledWith('Network error');
-    expect(result).toBeUndefined();
-    consoleSpy.mockRestore();
-  });
+        const result = await getData('http://api/comments')
 
-  it('should handle unknown error', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    (global.fetch as jest.Mock).mockRejectedValueOnce('Unknown error');
+        expect(result).toEqual({
+            data: mockData,
+            pagination: {
+                links: {},
+                totalCount: undefined
+            }
+        })
+    })
 
-    const result = await getData('test', 'eq', 'value');
+    it('should handle failed requests', async () => {
+        ; (global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: false,
+            status: 404
+        })
 
-    expect(consoleSpy).toHaveBeenCalledWith('An unknown error occurred');
-    expect(result).toBeUndefined();
-    consoleSpy.mockRestore();
-  });
-}); 
+        const result = await getData('http://api/comments')
+
+        expect(result).toBeUndefined()
+    })
+
+    it('should handle network errors', async () => {
+        ; (global.fetch as jest.Mock).mockRejectedValueOnce(
+            new Error('Network error')
+        )
+
+        const result = await getData('http://api/comments')
+
+        expect(result).toBeUndefined()
+    })
+
+    it('should handle malformed JSON response', async () => {
+        ; (global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: true,
+            json: async () => { throw new Error('Invalid JSON') },
+            headers: new Headers({})
+        })
+
+        const result = await getData('http://api/comments')
+
+        expect(result).toBeUndefined()
+    })
+
+    it('should parse complex link headers correctly', async () => {
+        const mockData = { id: 1 }
+        const complexLinkHeader =
+            '<http://api/comments?page=2>; rel="next", ' +
+            '<http://api/comments?page=1>; rel="first", ' +
+            '<http://api/comments?page=10>; rel="last", ' +
+            '<http://api/comments?page=4>; rel="prev"'
+
+            ; (global.fetch as jest.Mock).mockResolvedValueOnce({
+                ok: true,
+                json: async () => mockData,
+                headers: new Headers({
+                    'link': complexLinkHeader,
+                    'x-total-count': '100'
+                })
+            })
+
+        const result = await getData('http://api/comments')
+
+        expect(result?.pagination.links).toEqual({
+            next: 'http://api/comments?page=2',
+            first: 'http://api/comments?page=1',
+            last: 'http://api/comments?page=10',
+            prev: 'http://api/comments?page=4'
+        })
+    })
+})
