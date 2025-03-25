@@ -9,7 +9,10 @@ export const Comments = ({ data }: { data: Comment[] }) => {
     >
       {data.map((comment) => (
         <li key={comment.id} className="border border-gray-300 rounded p-4">
-          <h3 className="font-bold">{comment.email}</h3>
+          <h3 className="font-bold">{comment.name.toUpperCase()}</h3>
+          <p>
+            <a href={`mailto:${comment.email}`}>{comment.email}</a>
+          </p>
           <p>{ellipsis(comment.body, 64)}</p>
         </li>
       ))}

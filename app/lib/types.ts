@@ -1,7 +1,8 @@
 export type Comment = {
   id: number
-  body: string
+  postId: number
+  name: string
   email: string
-  createdAt: string
+  body: string
 }
 export type CommentResponse = Comment[]

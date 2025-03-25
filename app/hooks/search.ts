@@ -8,7 +8,7 @@ export const useHandleSubmit = (searchText: string, setData: (data: Comment[]) =
     (e: React.FormEvent) => {
       e.preventDefault()
       if (searchText.length > 3) {
-        getData('body', 'contains', searchText).then((response) => {
+        getData('', 'q', searchText).then((response) => {
           setData(response)
         })
       } else {
