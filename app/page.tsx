@@ -12,7 +12,7 @@ export default function Home() {
   const [searchText, setSearchText] = useState('')
 
   return (
-    <div className="p-8 pb-20 h-screen">
+    <div className="p-8 pb-20 h-screen overflow-hidden">
       <main className="flex flex-col gap-8 h-full">
         <SearchBox
           searchText={searchText}
@@ -21,9 +21,14 @@ export default function Home() {
         />
 
         {data?.data && (
-          <div>
-            <Pagination links={data?.pagination.links} callback={(url) =>  handlePagination(url, setData) } />
-            <Comments data={data?.data} />
+          <div className='h-full'>
+            <Pagination
+              links={data?.pagination.links}
+              callback={(url) => handlePagination(url, setData)}
+            />
+            <div className='overflow-y-auto h-full pt-3'>
+              <Comments data={data?.data} />
+            </div>
           </div>
         )}
       </main>

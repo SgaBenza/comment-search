@@ -15,8 +15,6 @@ function parseLinkHeader(header: string | null): Record<string, string> {
 }
 
 export async function getData(url: string) {
-  // const url = API_URL + `/comments?_page=2&_limit=2&${field}${param}=${value}`
-
   try {
     const response = await fetch(url)
     if (!response.ok) {
