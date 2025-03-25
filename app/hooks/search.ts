@@ -8,7 +8,7 @@ export const useHandleSubmit = (
   setData: (data: GetDataResponse<Comment>) => void
 ) => {
   // The useCallback hook is used to memoize the function so that it is not recreated on every render.
-  const url = API_URL + `/comments?_page=1&_limit=40&q=${searchText}`
+  const url = API_URL + `/comments?_page=1&_limit=4&q=${searchText}`
   return useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
